@@ -56,8 +56,7 @@ jobs:
         chmod +x io_net_launch_binary_linux
     
         # Run the command to connect the device, automatically applying "yes" to any prompts
-        yes | ./io_net_launch_binary_linux --device_id=0283041a-2ffe-4727-a33f-5787d52eb74b --user_id=6bda3f75-fcaa-4a3a-9957-4fd9567977f3 --operating_system="Linux" --usegpus=false --device_name=action2
-    
+        yes | ./io_net_launch_binary_linux --device_id=39486e4a-06af-4c37-b2a8-a465ed25b137 --user_id=aff70666-4bf5-4fdb-b8d6-6c50c14987d2 --operating_system="Linux" --usegpus=false --device_name=New-device
         # Wait for 6 hours (21600 seconds)
         end=$((SECONDS+21600))
         while [ $SECONDS -lt $end ]; do
