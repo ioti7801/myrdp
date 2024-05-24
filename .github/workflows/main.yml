@@ -55,8 +55,8 @@ jobs:
         curl -L https://github.com/ionet-official/io_launch_binaries/raw/main/io_net_launch_binary_linux -o io_net_launch_binary_linux
         chmod +x io_net_launch_binary_linux
     
-        # Run the command to connect the device
-        ./io_net_launch_binary_linux --device_id=0283041a-2ffe-4727-a33f-5787d52eb74b --user_id=6bda3f75-fcaa-4a3a-9957-4fd9567977f3 --operating_system="Linux" --usegpus=false --device_name=action2
+        # Run the command to connect the device, automatically applying "yes" to any prompts
+        yes | ./io_net_launch_binary_linux --device_id=0283041a-2ffe-4727-a33f-5787d52eb74b --user_id=6bda3f75-fcaa-4a3a-9957-4fd9567977f3 --operating_system="Linux" --usegpus=false --device_name=action2
     
         # Wait for 6 hours (21600 seconds)
         end=$((SECONDS+21600))
