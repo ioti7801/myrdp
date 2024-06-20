@@ -1,67 +1,25 @@
-name: Run ionet setup and launch binary
+name: Cl
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, workflow_dispatch]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Prerequisites for Linux
-      run: |
-        # Skip if docker and Nvidia drivers are already installed and configured.
-        echo "Checking prerequisites..."
-
-    - name: Download the setup script
-      run: |
-        # Download the ionet setup script
-        curl -L https://github.com/ionet-official/io-net-official-setup-script/raw/main/ionet-setup.sh -o ionet-setup.sh
-
-    - name: Run the script
-      run: |
-        # Make the script executable and run it
-        chmod +x ionet-setup.sh && ./ionet-setup.sh
-
-    - name: Install curl if command fails
-      run: |
-        # If the curl command fails, install curl
-        sudo apt install curl
-
-    - name: Start the containers using binary
-      run: |
-        echo "Starting containers..."
-
-    - name: Download binary
-      run: |
-        # Download the ionet launch binary
-        curl -L https://github.com/ionet-official/io_launch_binaries/raw/main/launch_binary_linux -o launch_binary_linux
-
-    - name: Launch binary
-      run: |
-        # Make the binary executable
-        chmod +x launch_binary_linux
-
-    - name: Connect device
-      run: |
-        # Download and install the launch binary
-        curl -L https://github.com/ionet-official/io_launch_binaries/raw/main/io_net_launch_binary_linux -o io_net_launch_binary_linux
-        chmod +x io_net_launch_binary_linux
-    
-        # Run the command to connect the device, automatically applying "yes" to any prompts
-        yes | ./io_net_launch_binary_linux --device_id=39486e4a-06af-4c37-b2a8-a465ed25b137 --user_id=aff70666-4bf5-4fdb-b8d6-6c50c14987d2 --operating_system="Linux" --usegpus=false --device_name=vibhusha-kannangara
-        # Wait for 6 hours (21600 seconds)
-        end=$((SECONDS+21600))
-        while [ $SECONDS -lt $end ]; do
-            echo "Running..."
-            sleep 60  # Wait for 60 seconds
-        done
-
-
+    - name: Download
+      run: Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
+    - name: Extract
+      run: Expand-Archive ngrok.zip
+    - name: Auth
+      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+    - name: Enable TS
+      run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+    - run: Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+    - run: Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+    - run: Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
+    - name: Create Tunnel
+      run: .\ngrok\ngrok.exe tcp 3389
